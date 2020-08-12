@@ -1,0 +1,35 @@
+try
+	set oldDelims to AppleScript's text item delimiters -- save their current state
+	set AppleScript's text item delimiters to {":"} -- declare new delimiters
+	
+	display dialog "What action do you want to add this email to 🍎 Reminders?" default answer ""
+	set reminder_input to text returned of result --get input
+	
+	set reminder_items to every text item of reminder_input --parse input
+	
+	if the number of items in reminder_items is greater than 1 then --check if input contains a :
+		set reminder_name to text item 2 of reminder_items --use text after : as reminder subject
+		set dueDate to (current date) + (text item 1 of reminder_items) * hours --use text before : as due date in hours
+	else
+		set reminder_name to text item 1 of reminder_items --if there is no :, use all input as subject
+		set dueDate to (current date) + 2 * hours -- default reminder is in 2 hours --default to due date of 2 hours
+	end if
+	
+	tell application "Google Chrome"
+		#	set tabname to get title of active tab of window 1
+		set taburl to get URL of active tab of window 1
+	end tell
+	
+	
+	--if the button returned of the result is "OK" then
+	tell application "Reminders"
+		-- set reminder_name to (text returned of result)
+		set reminder_id to make new reminder with properties {remind me date:dueDate, name:reminder_name, body:taburl} --create reminder
+	end tell
+	set AppleScript's text item delimiters to oldDelims -- restore delimiters
+	--end if	
+	
+on error
+	set AppleScript's text item delimiters to oldDelims -- restore delimiters
+	display dialog "💥Doh! Something went wrong. Check your syntax or contact ♥️Marty♥️ for assistance." --throw an error if something goes wrong
+end try
